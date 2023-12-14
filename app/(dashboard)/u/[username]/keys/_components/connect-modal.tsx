@@ -1,7 +1,11 @@
 "use client";
 
+import { toast } from "sonner";
+import { useState, useTransition, useRef, ElementRef } from "react";
 import { AlertTriangle } from "lucide-react";
+import { IngressInput } from "livekit-server-sdk";
 
+import { createIngress } from "@/actions/ingress";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,23 +24,47 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const RTMP = String(IngressInput.RTMP_INPUT);
+const WHIP = String(IngressInput.WHIP_INPUT);
+
+type IngressType = typeof RTMP | typeof WHIP;
+
 export const ConnectModal = () => {
+  const closeRef = useRef<ElementRef<"button">>(null);
+  const [isPending, startTransition] = useTransition();
+  const [ingressType, setIngressType] = useState<IngressType>(RTMP);
+
+  const onSubmit = () => {
+    startTransition(() => {
+      createIngress(parseInt(ingressType))
+        .then(() => {
+          toast.success("Ingress created");
+          closeRef?.current?.click();
+        })
+        .catch(() => toast.error("Something went wrong"));
+    });
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="primary">Generate stream key</Button>
+        <Button variant="primary">Generate connection</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Generate your stream key</DialogTitle>
+          <DialogTitle>Generate connection</DialogTitle>
         </DialogHeader>
-        <Select>
+        <Select
+          disabled={isPending}
+          value={ingressType}
+          onValueChange={(value) => setIngressType(value)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Ingress Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="RTMP">RTMP</SelectItem>
-            <SelectItem value="WHIP">WHIP</SelectItem>
+            <SelectItem value={RTMP}>RTMP</SelectItem>
+            <SelectItem value={WHIP}>WHIP</SelectItem>
           </SelectContent>
         </Select>
         <Alert>
@@ -44,14 +72,14 @@ export const ConnectModal = () => {
           <AlertTitle>Warning!</AlertTitle>
           <AlertDescription>
             This action will reset all active streams using the current
-            connection.
+            connection
           </AlertDescription>
         </Alert>
         <div className="flex justify-between">
-          <DialogClose>
+          <DialogClose ref={closeRef} asChild>
             <Button variant="ghost">Cancel</Button>
           </DialogClose>
-          <Button onClick={() => {}} variant="primary">
+          <Button disabled={isPending} onClick={onSubmit} variant="primary">
             Generate
           </Button>
         </div>
