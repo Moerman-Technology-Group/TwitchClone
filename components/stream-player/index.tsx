@@ -3,26 +3,43 @@
 import { Stream, User } from "@prisma/client";
 import { LiveKitRoom } from "@livekit/components-react";
 
-import { useViewerToken } from "@/hooks/use-viewer-token";
-import { useChatSidebar } from "@/store/use-chat-sidebar";
-
 import { cn } from "@/lib/utils";
+import { useChatSidebar } from "@/store/use-chat-sidebar";
+import { useViewerToken } from "@/hooks/use-viewer-token";
 
 import { InfoCard } from "./info-card";
+import { AboutCard } from "./about-card";
 import { ChatToggle } from "./chat-toggle";
 import { Chat, ChatSkeleton } from "./chat";
 import { Video, VideoSkeleton } from "./video";
 import { Header, HeaderSkeleton } from "./header";
-import { AboutCard } from "./about-card";
+
+type CustomStream = {
+  id: string;
+  isChatEnabled: boolean;
+  isChatDelayed: boolean;
+  isChatFollowersOnly: boolean;
+  isChatSubscribersOnly: boolean;
+  isChatEmoteOnly: boolean;
+  isLive: boolean;
+  thumbnailUrl: string | null;
+  name: string;
+};
+
+type CustomUser = {
+  id: string;
+  username: string;
+  bio: string | null;
+  stream: CustomStream | null;
+  imageUrl: string;
+  isStaff: boolean;
+  isPartner: boolean;
+  _count: { followedBy: number };
+};
 
 interface StreamPlayerProps {
-  user: User & {
-    stream: Stream | null;
-    _count: {
-      followedBy: number;
-    };
-  };
-  stream: Stream;
+  user: CustomUser;
+  stream: CustomStream;
   isFollowing: boolean;
 }
 
@@ -37,6 +54,7 @@ export const StreamPlayer = ({
   if (!token || !name || !identity) {
     return <StreamPlayerSkeleton />;
   }
+
   return (
     <>
       {collapsed && (
@@ -61,6 +79,8 @@ export const StreamPlayer = ({
             imageUrl={user.imageUrl}
             isFollowing={isFollowing}
             name={stream.name}
+            isStaff={user.isStaff}
+            isPartner={user.isPartner}
           />
           <InfoCard
             hostIdentity={user.id}
@@ -74,6 +94,8 @@ export const StreamPlayer = ({
             viewerIdentity={identity}
             bio={user.bio}
             followedByCount={user._count.followedBy}
+            isStaff={user.isStaff}
+            isPartner={user.isPartner}
           />
         </div>
         <div className={cn("col-span-1", collapsed && "hidden")}>
