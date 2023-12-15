@@ -2,6 +2,7 @@
 
 import { Stream } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { UTApi } from "uploadthing/server";
 
 import { db } from "@/lib/db";
 import { getSelf } from "@/lib/auth-service";
@@ -20,6 +21,7 @@ export const updateStream = async (values: Partial<Stream>) => {
     }
 
     const validData = {
+      thumbnailUrl: values.thumbnailUrl,
       name: values.name,
       isChatEnabled: values.isChatEnabled,
       isChatDelayed: values.isChatDelayed,
@@ -27,6 +29,12 @@ export const updateStream = async (values: Partial<Stream>) => {
       isChatSubscribersOnly: values.isChatSubscribersOnly,
       isChatEmoteOnly: values.isChatEmoteOnly,
     };
+
+    const utapi = new UTApi();
+
+    if (values.thumbnailUrl === null) {
+      await utapi.deleteFiles(selfStream.thumbnailKey!);
+    }
 
     const stream = await db.stream.update({
       where: {
@@ -42,7 +50,8 @@ export const updateStream = async (values: Partial<Stream>) => {
     revalidatePath(`/${self.username}`);
 
     return stream;
-  } catch {
+  } catch (e) {
+    console.log(e);
     throw new Error("Internal Server Error");
   }
 };
