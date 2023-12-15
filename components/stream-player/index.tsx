@@ -32,6 +32,8 @@ type CustomUser = {
   bio: string | null;
   stream: CustomStream | null;
   imageUrl: string;
+  isStaff: boolean;
+  isPartner: boolean;
   _count: { followedBy: number };
 };
 
@@ -77,6 +79,8 @@ export const StreamPlayer = ({
             imageUrl={user.imageUrl}
             isFollowing={isFollowing}
             name={stream.name}
+            isStaff={user.isStaff}
+            isPartner={user.isPartner}
           />
           <InfoCard
             hostIdentity={user.id}
@@ -90,6 +94,8 @@ export const StreamPlayer = ({
             viewerIdentity={identity}
             bio={user.bio}
             followedByCount={user._count.followedBy}
+            isStaff={user.isStaff}
+            isPartner={user.isPartner}
           />
         </div>
         <div className={cn("col-span-1", collapsed && "hidden")}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { VerifiedMark } from "@/components/verified-mark";
+import { StaffMark } from "@/components/staff-mark";
 import { BioModal } from "./bio-modal";
 
 interface AboutCardProps {
@@ -9,6 +10,8 @@ interface AboutCardProps {
   viewerIdentity: string;
   bio: string | null;
   followedByCount: number;
+  isStaff: boolean;
+  isPartner: boolean;
 }
 
 export const AboutCard = ({
@@ -17,6 +20,8 @@ export const AboutCard = ({
   viewerIdentity,
   bio,
   followedByCount,
+  isStaff,
+  isPartner,
 }: AboutCardProps) => {
   const hostAsViewer = `host-${hostIdentity}`;
   const isHost = viewerIdentity === hostAsViewer;
@@ -29,7 +34,8 @@ export const AboutCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2 text-sm lg:text-lg font-semibold">
             About {hostName}
-            <VerifiedMark />
+            {isStaff && <StaffMark />}
+            {isPartner && !isStaff && <VerifiedMark />}
           </div>
           {isHost && <BioModal initialValue={bio} />}
         </div>

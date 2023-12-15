@@ -9,6 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar, UserAvatarSkeleton } from "@/components/user-avatar";
 import { VerifiedMark } from "@/components/verified-mark";
+import { StaffMark } from "@/components/staff-mark";
 
 import { Actions, ActionsSkeleton } from "./actions";
 
@@ -19,6 +20,8 @@ interface HeaderProps {
   imageUrl: string;
   isFollowing: boolean;
   name: string;
+  isStaff: boolean;
+  isPartner: boolean;
 }
 
 export const Header = ({
@@ -28,6 +31,8 @@ export const Header = ({
   imageUrl,
   isFollowing,
   name,
+  isStaff,
+  isPartner,
 }: HeaderProps) => {
   const participants = useParticipants();
   const participant = useRemoteParticipant(hostIdentity);
@@ -51,7 +56,8 @@ export const Header = ({
         <div className="space-y-1">
           <div className="flex items-center gap-x-2">
             <h2 className="text-lg font-semibold">{hostName}</h2>
-            <VerifiedMark />
+            {isStaff && <StaffMark />}
+            {isPartner && !isStaff && <VerifiedMark />}
           </div>
           <p className="text-sm font-semibold">{name}</p>
           {isLive ? (

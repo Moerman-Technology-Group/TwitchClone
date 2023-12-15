@@ -18,6 +18,9 @@ model User {
   imageUrl String @db.Text
   externalUserId String @unique
   bio String? @db.Text
+  isPartner Boolean @default(false)
+  isAffiliate Boolean @default(false)
+  isStaff Boolean @default(false)
 
   following Follow[] @relation("Following")
   followedBy Follow[] @relation("FollowedBy")
